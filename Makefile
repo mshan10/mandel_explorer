@@ -14,4 +14,3 @@ bitmap.o: bitmap.c
 
 clean:
 	rm -f mandel.o bitmap.o mandel mandel.mpg
-	ls | grep -P "mandel[0-9]+.bmp" | xargs -d"\n" rm
