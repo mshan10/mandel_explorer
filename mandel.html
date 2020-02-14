@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        let data;
+        let maxHeight, maxWidth        
+
+        function calculateData(xCo, yCo) {
+            let temps = Math.exp(Math.log(.0001/data['s'])/100);
+            let relativeX = (xCo - (maxWidth / 2.0))  / (maxWidth / 2.0)
+            let relativeY = (-(yCo - (maxHeight / 2.0))) / (maxHeight / 2.0)
+            data['x'] += (temps * relativeX)
+            data['y'] += (temps* relativeY)
+            data['s'] *= temps
+            sendRequest()
+        }
+        function sendRequest() {
+            Http.open("POST", url, true);
+            Http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            Http.send(JSON.stringify(data));
+        }
+
+        function zoomIn() {
+            data['s'] *= Math.exp(Math.log(.0001/data['s'])/100);
+            sendRequest()
+        }
+        function zoomOut() {
+            data['s'] /= Math.exp(Math.log(.0001/data['s'])/100);
+            sendRequest()
+        }
+
+        function reset() {
+            data = {
+                'x': 0,
+                'y': 0,
+                's': 2
+            }
+            sendRequest()
+        }
+        
+        const Http = new XMLHttpRequest();
+        const url='http://localhost:3000/request';
+        $(document).ready(function () {
+            maxHeight = document.getElementById('#mandelimg').height;
+            maxWidth = maxHeight;
+            reset()
+
+            $("img").on("click", function (event) {
+                calculateData(event.pageX, event.pageY)
+            });
+        });
+        Http.onreadystatechange = (e) => {
+            document.getElementById('#mandelimg').src = "mandel.bmp?random="+new Date().getTime();
+        }
+        
+    </script>
+<title>Page Title</title>
+</head>
+<body>
+<script src="./mandel.js"></script>
+<div>
+    <img id='#mandelimg' style='width: auto; height: 90vh;'src='mandel.bmp'/>
+    <button onclick="zoomIn()">Zoom In</button>
+    <button onclick="zoomOut()">Zoom Out</button>
+    <button onclick="reset()">Reset</button>
+</div>
+
+</body>
+</html>
